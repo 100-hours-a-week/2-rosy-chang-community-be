@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PostRepostitory extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 삭제되지 않은 게시글 중 ID로 찾기
     Optional<Post> findByPostIdAndIsDeletedFalse(Long postId);
