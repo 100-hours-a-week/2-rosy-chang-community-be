@@ -1,27 +1,35 @@
 package kakao.community_backend.controller;
 
-import kakao.community_backend.entity.User;
+import kakao.community_backend.dto.UserDto;
 import kakao.community_backend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> users = userService.getAllActiveUsers();
+        return ResponseEntity.ok(users);
     }
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long id) {
+        UserDto user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserDto> getUserByEmail(@PathVariable("email") String email) {
+        UserDto user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(user);
     }
 }
