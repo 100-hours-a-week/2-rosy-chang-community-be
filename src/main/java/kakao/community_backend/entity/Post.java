@@ -5,37 +5,38 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "Users")
+@Table(name = "Posts")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long userId;
-
-    @Column(nullable = false, unique = true, length = 100)
-    private String email;
+    @Column(name = "post_id")
+    private Long postId;
 
     @Column(nullable = false, length = 255)
-    private String password;
+    private String title;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String nickname;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
 
-    @Column(name = "profile_image_url", length = 255)
-    private String profileImageUrl;
+    @Column(name = "content_image_url", length = 255)
+    private String contentImageUrl;
+
+    @Column(name = "view_count", nullable = false)
+    private int viewCount;
+
+    @Column(name = "like_count", nullable = false)
+    private int likeCount;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -48,12 +49,13 @@ public class User {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Post> posts = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
 }
