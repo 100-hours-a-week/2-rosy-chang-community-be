@@ -1,40 +1,25 @@
 package kakao.community_backend.repository;
 
 import kakao.community_backend.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public class UserRepository {
-    private final JdbcTemplate jdbcTemplate;
+public interface UserRepository extends JpaRepository<User, Long> {
+    // 이메일로 사용자 찾기
+    Optional<User> findByEmail(String email);
 
-    @Autowired
-    public UserRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    // 닉네임으로 사용자 찾기
+    Optional<User> findByNickname(String nickname);
 
-    public List<User> findAll() {
-        String sql = "SELECT user_id, email, nickname, profile_image_url, created_at FROM Users WHERE is_deleted = false";
-        return jdbcTemplate.query(sql, new UserRowMapper());
-    }
+    // 삭제되지 않은 모든 사용자 찾기
+    List<User> findByIsDeletedFalse();
 
-    private static class UserRowMapper implements RowMapper<User> {
-        @Override
-        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-            User user = new User();
-            user.setUserId(rs.getLong("user_id"));
-            user.setEmail(rs.getString("email"));
-            user.setNickname(rs.getString("nickname"));
-            user.setProfileImageUrl(rs.getString("profile_image_url"));
-            user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-
-            return user;
-        }
-    }
+    // JPQL을 사용한 쿼리 예시
+    @Query("SELECT u FROM User u WHERE u.isDeleted = false ORDER BY u.createdAt DESC")
+    List<User> findAllActiveUsers();
 }
