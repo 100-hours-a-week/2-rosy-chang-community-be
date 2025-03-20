@@ -2,7 +2,6 @@ package kakao.community_backend.service;
 
 import kakao.community_backend.dto.PostDto;
 import kakao.community_backend.entity.Post;
-import kakao.community_backend.entity.User;
 import kakao.community_backend.repository.PostRepository;
 import kakao.community_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
