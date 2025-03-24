@@ -21,9 +21,20 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        System.out.println("JwtAuthenticationInterceptor - URI: " + request.getRequestURI());
+        String requestURI = request.getRequestURI();
+        String method = request.getMethod();
 
-        // 토큰 추출
+        // 인증이 필요하지 않은 경로 패턴 정의
+        boolean isPublicGetEndpoint =
+                (method.equals("GET") && (requestURI.matches("/posts") ||
+                        requestURI.matches("/posts/\\d+") ||
+                        requestURI.matches("/posts/\\d+/comments")));
+
+        if (isPublicGetEndpoint) {
+            return true;  // 인증 없이 접근 가능
+        }
+
+        // 이하 기존 인증 코드
         String authHeader = request.getHeader("Authorization");
         System.out.println("Authorization Header: " + authHeader);
 
@@ -42,7 +53,6 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
 
         // 요청 속성에 사용자 ID 저장
         Long userId = jwtUtil.extractUserId(token);
-        System.out.println("Extracted User ID: " + userId);
         request.setAttribute("userId", userId);
         return true;
     }
