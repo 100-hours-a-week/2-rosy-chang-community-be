@@ -61,7 +61,22 @@ public class PostController {
             @RequestParam String content,
             @RequestParam(required = false) List<MultipartFile> images) {
 
+        // 사용자 ID 확인 및 디버깅
         Long userId = (Long) request.getAttribute("userId");
+        System.out.println("PostController - User ID from request attribute: " + userId);
+
+        // 토큰이 있는지 확인
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("PostController - Auth Header: " + authHeader);
+
+        // userId가 null이면 에러 응답
+        if (userId == null) {
+            Map<String, Long> errorResult = new HashMap<>();
+            errorResult.put("error", 1L);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(401, "인증에 실패했습니다. 사용자 ID가 없습니다.", errorResult));
+        }
+
         Long postId = postService.createPost(userId, title, content, images);
 
         Map<String, Long> result = new HashMap<>();

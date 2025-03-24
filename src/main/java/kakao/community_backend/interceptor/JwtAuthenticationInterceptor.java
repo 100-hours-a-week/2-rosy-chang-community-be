@@ -21,8 +21,12 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        System.out.println("JwtAuthenticationInterceptor - URI: " + request.getRequestURI());
+
         // 토큰 추출
         String authHeader = request.getHeader("Authorization");
+        System.out.println("Authorization Header: " + authHeader);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"status\": 401, \"message\": \"인증에 실패했습니다\"}");
@@ -37,7 +41,9 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         }
 
         // 요청 속성에 사용자 ID 저장
-        request.setAttribute("userId", jwtUtil.extractUserId(token));
+        Long userId = jwtUtil.extractUserId(token);
+        System.out.println("Extracted User ID: " + userId);
+        request.setAttribute("userId", userId);
         return true;
     }
 }
