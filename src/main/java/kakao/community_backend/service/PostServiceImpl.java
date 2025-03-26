@@ -185,6 +185,11 @@ public class PostServiceImpl implements PostService {
 
     // 엔티티를 DTO로 변환하는 유틸리티 메서드
     private PostDto convertToDto(Post post) {
+        // 댓글 수 계산 (삭제되지 않은 댓글만 카운트)
+        long commentCount = post.getComments().stream()
+                .filter(comment -> !comment.isDeleted())
+                .count();
+
         return PostDto.builder()
                 .postId(post.getPostId())
                 .title(post.getTitle())
@@ -197,6 +202,7 @@ public class PostServiceImpl implements PostService {
                 .authorProfileImageUrl(post.getUser().getProfileImageUrl())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .commentCount((int) commentCount) // 댓글 수 설정
                 .build();
     }
 }
