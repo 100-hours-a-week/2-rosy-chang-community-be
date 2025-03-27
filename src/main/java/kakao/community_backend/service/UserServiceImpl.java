@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createUser(SignupRequest request) {
         // 이메일 중복 확인
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.findByEmailAndIsDeletedFalse(request.getEmail()).isPresent()) {
             throw new DuplicateResourceException("email", "이미 사용 중인 이메일입니다");
         }
 
@@ -63,8 +63,13 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public TokenResponse login(String email, String password) {
         // 사용자 찾기
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다"));
+
+        // 삭제된 사용자 확인 추가
+        if (user.isDeleted()) {
+            throw new RuntimeException("탈퇴한 계정입니다. 다른 계정으로 로그인해주세요.");
+        }
 
         // 비밀번호 확인
         if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -163,7 +168,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserDto getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new RuntimeException("해당 이메일의 사용자를 찾을 수 없습니다"));
         return convertToDto(user);
     }
